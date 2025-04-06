@@ -1,0 +1,2 @@
+# blografi
+ Blografi is a personal development project that I created to enhance my skills in web development and content management. This repository showcases my journey through various stages of building a blog application, focusing on both frontend and backend aspects. It serves as a practical exercise in improving my technical abilities while learning new tools and frameworks. Feel free to explore the code, suggest improvements, or contribute if you'd like to collaborate!
