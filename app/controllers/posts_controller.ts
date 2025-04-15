@@ -5,12 +5,12 @@ import Category from "#models/category"
 
 export default class PostsController {
   public async index() {
-    const posts = await Post.all()
+    const posts = await Post.query().preload('categories')
     return posts
   }
 
   public async show({ params }: { params: { id: number } }) {
-    const post = await Post.findOrFail(params.id)
+    const post = await Post.query().preload('categories').where('id', params.id).firstOrFail()
     return post
   }
 
@@ -20,7 +20,6 @@ export default class PostsController {
 
   public async store({ request }: { request: any }) {
     try {
-      // Validate if categories exist before creating the post
       const categoryIds = request.input('categories', [])
       console.log('Category IDs:', categoryIds)
 
@@ -33,17 +32,14 @@ export default class PostsController {
         }
       }
 
-      // Create the post after category validation
       const post = await Post.create(request.only(['title', 'content', 'user_id', 'status']))
       console.log('Created post:', post)
 
-      // Attach categories if provided
       if (categoryIds.length > 0) {
         await post.related('categories').attach(categoryIds)
         console.log('Categories attached')
       }
 
-      // Load the categories relation
       await post.load('categories')
       console.log('Categories loaded:', post.categories)
 
@@ -58,11 +54,16 @@ export default class PostsController {
     return "edit"
   }
 
-  public async update() {
-    return "update"
+  public async update({ params, request }: { params: { id: number }, request: any }) {
+    const post = await Post.findOrFail(params.id)
+    post.merge(request.only(['title', 'content', 'user_id', 'status']))
+    await post.save()
+    return post
   }
 
-  public async destroy() {
-    return "destroy"
+  public async destroy({ params }: { params: { id: number } }) {
+    const post = await Post.findOrFail(params.id)
+    await post.delete()
+    return post
   }
 }

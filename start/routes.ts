@@ -11,6 +11,7 @@ import CategoriesController from '#controllers/categories_controller'
 import PostsController from '#controllers/posts_controller'
 import UsersController from '#controllers/users_controller'
 import router from '@adonisjs/core/services/router'
+import { middleware } from '#start/kernel'
 
 router.get('/', async () => {
   return {
@@ -18,7 +19,11 @@ router.get('/', async () => {
   }
 })
 
-router.resource('users', UsersController)
-router.resource('posts', PostsController)
-router.resource('categories', CategoriesController)
+router.post('/login', [UsersController, 'login'])
 
+router.group(() => {
+  router.resource('posts', PostsController)
+  router.resource('categories', CategoriesController)
+}).use(middleware.auth())
+
+router.resource('users', UsersController)
